@@ -12,12 +12,6 @@ Unzip and run `Rust Time Overlay.exe`. No installation required.
 
 ---
 
-## Preview
-
-![overlay preview](icon.png)
-
----
-
 ## Features
 
 - **☀️ / 🌙 Server time** — exact in-game time with day/night icon, updated every 12 seconds directly from the Rust+ API
