@@ -1,8 +1,8 @@
 # Rust Time Overlay
 
-A lightweight always-on-top overlay for Rust that displays the current in-game server time, live player population, and online status of tracked players — all pulled in real time without any game modifications, browser extensions, memory reading, or third-party accounts.
+A lightweight always-on-top overlay for Rust that displays the current in-game server time, live player population, and online status of tracked players — pulled in real time through Rust's own official API. No game modifications, no memory reading, no third-party accounts.
 
-> **Zero game impact.** The overlay communicates exclusively through Rust's own official API (the same one the Rust+ phone app uses). It does not inject into the game process, read game memory, modify any files, or interact with Easy Anti-Cheat in any way. It is a standalone window that sits on top of your screen.
+**Anti-cheat safe.** The overlay is a regular desktop window. It communicates only through the Rust+ WebSocket API (the same one the official phone app uses) and the public BattleMetrics REST API. It never touches the game process, reads memory, hooks system calls, or interacts with Easy Anti-Cheat in any way. Facepunch built and officially supports the Rust+ API for exactly this kind of companion use.
 
 ## Download
 
@@ -21,18 +21,18 @@ Unzip and run `Rust Time Overlay.exe`. No installation required.
 - Drag to reposition anywhere on screen
 - Scroll wheel to resize the font on the fly
 - Configurable font size, transparency, and text color
-- All settings and server credentials saved automatically between sessions
+- All settings saved automatically between sessions
 - Reconnects to your last server automatically on every launch
 
 ---
 
 ## How It Works
 
-**Server time and population** are fetched over a persistent WebSocket connection to your Rust server using the official [Rust+ API](https://github.com/liamcottle/rustplus.js) — the same protocol the Rust+ phone app uses. It requires a one-time pairing step inside the game, which produces an auth token that is stored locally on your machine only. The overlay polls time every 12 seconds and population on the same cycle — two small requests, nothing more. No credentials ever leave your machine.
+**Server time and population** are fetched over a persistent WebSocket connection to your Rust server using the official [Rust+ API](https://github.com/liamcottle/rustplus.js) — the same protocol the Rust+ phone app uses. It requires a one-time pairing step inside the game, which produces an auth token stored locally on your machine only. The overlay polls time and population every 12 seconds — two small requests per cycle. No credentials ever leave your machine.
 
 **Player tracking** uses the [BattleMetrics](https://www.battlemetrics.com) public REST API, which indexes Rust servers and their online player lists from public data. The overlay resolves your server's BattleMetrics ID from its IP address once, then fetches the full online player list in a single request every 30 seconds — regardless of how many players you're tracking. You can enter either an in-game display name (case-insensitive match) or a 17-digit Steam ID (resolved to a BattleMetrics player record once, then cached — no repeated lookups). No BattleMetrics account, API key, or login is required.
 
-Both data sources run in background daemon threads, completely separate from the UI. CPU usage is negligible — the app sleeps between polls and does no continuous work. Memory footprint is minimal (under 50MB including the Python runtime).
+Both data sources run in background daemon threads, completely separate from the UI. CPU usage is negligible — the app sleeps between polls and does no continuous work. Memory footprint is under 50MB including the Python runtime.
 
 ---
 
@@ -87,7 +87,7 @@ The overlay adds a row per player below the population count:
 
 **Name matching** is case-insensitive and exact. If you enter `MintyFresh`, it matches `mintyfresh`, `MINTYFRESH`, etc., against the live BattleMetrics player list for your server.
 
-**Steam ID matching** does a one-time lookup via the BattleMetrics identifiers API to resolve the Steam ID to a BattleMetrics player record and display name. After that first resolution the name is cached and subsequent polls use the cached name — no extra API calls per cycle.
+**Steam ID matching** does a one-time lookup via the BattleMetrics identifiers API to resolve the Steam ID to a display name. After that first resolution the name is cached and subsequent polls use it — no extra API calls per cycle.
 
 The status line below the player list shows when data was last fetched (e.g. `✓ Updated 12s ago`) or `⟳ Querying BattleMetrics…` while a poll is in progress.
 
@@ -121,6 +121,21 @@ All settings are in the settings panel (double-click the overlay to open):
 
 ---
 
+## Privacy & Security
+
+Your server credentials (IP, port, Steam ID, auth token) are stored locally in `rust_overlay_config.json` next to the exe. This file is never uploaded anywhere and is excluded from the repository via `.gitignore`.
+
+The overlay makes outbound connections **only** to:
+
+| Destination | Protocol | Purpose | Auth |
+|-------------|----------|---------|------|
+| Your Rust game server | WebSocket (Rust+ protocol) | Time and population | Local token only |
+| `api.battlemetrics.com` | HTTPS | Player online status | None — public API |
+
+No analytics, no telemetry, no crash reporting, no external accounts, no background updater. The source code is fully readable in `source/rust_time_overlay.pyw` — a single Python file with no obfuscation.
+
+---
+
 ## Building from Source
 
 **Install dependencies:**
@@ -141,27 +156,10 @@ The `.spec` file excludes heavy unused packages (numpy, scipy, Pillow, etc.) to 
 
 ---
 
-## Privacy & Security
-
-Your server credentials (IP, port, Steam ID, auth token) are stored locally in `rust_overlay_config.json` next to the exe. This file is never uploaded anywhere and is excluded from the repository via `.gitignore`.
-
-The overlay makes outbound connections **only** to:
-
-| Destination | Protocol | Purpose | Auth |
-|-------------|----------|---------|------|
-| Your Rust game server | WebSocket (Rust+ protocol) | Time and population | Local token only |
-| `api.battlemetrics.com` | HTTPS | Player online status | None — public API |
-
-That's it. No analytics, no telemetry, no crash reporting, no external accounts, no background updater. The source code is fully readable in `source/rust_time_overlay.pyw` — a single ~900-line Python file with no obfuscation.
-
-**Anti-cheat safe.** The overlay does not touch the Rust game process, read memory, hook system calls, or interact with Easy Anti-Cheat in any way. It is a regular desktop window that happens to display information from the Rust+ API — the same data your phone receives.
-
----
-
 ## Troubleshooting
 
 **Overlay doesn't connect after launch**
-Your server auth token may have expired (tokens expire when you log out or the server restarts pairing). Click **Change Server** in settings and pair again from inside Rust.
+Your server auth token may have expired. Click **Change Server** in settings and pair again from inside Rust.
 
 **Player shows grey dot and never updates**
 The Steam ID may not be indexed on BattleMetrics, or the player has never been seen on a BM-tracked server. Try entering their in-game display name instead.
