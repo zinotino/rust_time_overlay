@@ -20,6 +20,7 @@ Unzip and run `Rust Time Overlay.exe`. No installation required.
 
 - ☀️ / 🌙 Real-time day/night indicator with exact server time
 - ☠ Live server population count
+- ● Player online tracker — enter Steam IDs or player names, see green/red status on the overlay (updated every 30s via BattleMetrics, no account required)
 - Fully transparent, borderless overlay — stays on top while you play
 - Drag to reposition anywhere on screen
 - Scroll wheel to resize font on the fly
@@ -86,6 +87,8 @@ All settings are found in the settings panel (double-click the overlay to open):
 | Transparency | Slider — adjusts overlay opacity |
 | Text Color | Color picker for overlay text |
 | Show population | Toggle the ☠ player count row on/off |
+| Track players | Toggle player tracker rows on/off |
+| Player names or Steam IDs | Enter one per line — accepts in-game names or 17-digit Steam IDs. Click **Save** to apply. Status shows when data was last fetched. |
 
 ---
 
@@ -116,14 +119,4 @@ Your server credentials (IP, port, Steam ID, auth token) are stored locally in `
 ## Troubleshooting
 
 **Overlay doesn't connect after launch**
-Your server token may have expired. Click **Change Server** in settings and pair again from inside Rust.
-
-**"rustplus library not installed" warning**
-Open a terminal and run:
-```
-"C:\Python3xx\python.exe" -m pip install rustplus
-```
-Use the exact Python path shown in the warning.
-
-**Node.js not detected after installing**
-Restart your PC so PATH updates take effect, then click **I've installed it — Check Again**.
+Your server token may have expired. Click **
