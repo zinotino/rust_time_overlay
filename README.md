@@ -7,13 +7,6 @@ A lightweight always-on-top overlay for Rust that displays the current in-game s
 **[⬇ Download latest release](../../releases/latest)**
 
 Unzip and run `Rust Time Overlay.exe`. No installation required.
-
----
-
-## Preview
-
-![overlay preview](icon.png)
-
 ---
 
 ## Features
